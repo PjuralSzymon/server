@@ -17,9 +17,11 @@
 #include <sys/ioctl.h>
 #include <netdb.h>
 
-#define SERVER_PORT 18001
+#include <pthread.h>
 
-#define MAXLINE 4096
+#define SERVER_PORT 18009
+
+#define MAXLINE 8192
 #define SA struct sockaddr
 
 void err_n_die(const char *fmt, ...);
