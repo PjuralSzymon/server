@@ -1,0 +1,3 @@
+webside1 1111 /home/szymon/SERVER/examplePage.html
+website2 2222 /home/szymon/SERVER/examplePage2.html
+website3 3333 /home/szymon/SERVER/examplePage3.html

@@ -24,9 +24,29 @@
 #define MAXLINE 8192
 #define SA struct sockaddr
 
+struct website_status
+{
+    char * name;
+    int port;
+    int number_of_connections;
+    int number_of_errors;
+};
+
+struct config_data
+{
+    char * name;
+    char * path;
+    char * dict;
+    int port;
+    int number_of_websites;
+};
+
 void err_n_die(const char *fmt, ...);
 char *bin2hex(const unsigned char *input, size_t len);
 char *read_file(char * filename);
 char *connect_two_txt(char * orginal, char *new);
+int count_lines_in_file(char * path);
+struct config_data* read_config_file(char * path);
+void removeChar(char * str, char charToRemmove);
 
 #endif
