@@ -1,3 +1,4 @@
-webside1 1111 /home/szymon/SERVER/examplePage.html
-website2 2222 /home/szymon/SERVER/examplePage2.html
-website3 3333 /home/szymon/SERVER/examplePage3.html
+webside1 8071 ./examplePage.html S
+website2 8072 ./examplePage2.html N
+website3 8073 ./examplePage3.html N
+website3 8074 ./examplePage6.html N

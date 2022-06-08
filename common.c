@@ -101,7 +101,6 @@ struct config_data* read_config_file(char * path)
     }
     char line[100];
 
-    printf("number_of_lines; %d\n",number_of_lines);
     struct config_data* config_data_set = (struct config_data*)malloc(number_of_lines * sizeof(struct config_data));
     int i = 0;
     int id = 0;
@@ -137,19 +136,24 @@ struct config_data* read_config_file(char * path)
             {
                 config_data_set[i].path = data;
             }
+            else if(j==3)
+            {
+                config_data_set[i].security = data;
+            }
             line_split = strtok(NULL," ");
             j = j + 1;
         }
         i = i + 1;
     }
+    /*
     for(int i=0;i<number_of_lines;i++)
     {
         printf("config_data_set[%d].name: [%s]\n",i,config_data_set[i].name);
         printf("config_data_set[%d].port: [%d]\n",i,config_data_set[i].port);
         printf("config_data_set[%d].path: [%s]\n\n",i,config_data_set[i].path);
         printf("config_data_set[%d].dict: [%s]\n\n",i,config_data_set[i].dict);
-
     }
+    */
     return config_data_set;
 }
 

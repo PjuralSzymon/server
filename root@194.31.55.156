@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.button1 {background-color: #4CAF50;} /* Green */
+.button2 {background-color: #008CBA;} /* Blue */
+</style>
+<script>
+    function myFunction1() 
+    {
+        document.getElementById("demo1").style.color = "red";
+    }
+    function myFunction2() 
+    {
+        document.getElementById("demo2").style.color = "red";
+    }
+    function pageRedirect() {
+        var protDiv = document.getElementById('Prot');
+        console.log("password:", protDiv.innerHTML);
+        let link = "http://localhost:8071/";
+        let result = link.concat(protDiv.innerHTML);
+        console.log("new link:", result);
+        window.location.href = result;
+    }    
+</script>
+</head>
+<body>
+
+<h1>Inzynieria Cyberbezpieczenstwa</h1>
+<p>Strona jest calkowicie zahostowana za pomoca programu simple server</p>
+
+<button id="demo3" class="button button2" onclick="pageRedirect()">Redirect to secured page</button>
+
+</body>
+</html>

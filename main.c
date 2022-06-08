@@ -1,28 +1,35 @@
 #include "common.h"
 #include "gui.h"
+#include "security.h"
 #include <strings.h>
-
 
 struct arg_host_struct {
     int port;
     int pipe_in;
     int pipe_out;
+    int security;
     char * data;
     char * dictionary;
+    char * password;
 };
 
 void* host_service(void * args);
 void send_dummy_data(char* addr, int port);
 
-
-
 int main(int argc, char **argv)
 {
-    struct config_data* cf_data_set = read_config_file("/home/szymon/SERVER/config.txt");
-    // creating temporary data for testing:
+    //Generating random password protecting data
+    char* password = get_random_password(5);
+
+    //Reading config file:
+    struct config_data* cf_data_set = read_config_file("./config.txt");
+
+    // allocating memory:
     int websites = cf_data_set[0].number_of_websites;
     struct website_status* server_status = (struct website_status*)malloc(websites * sizeof(struct website_status));
     pthread_t * threads = malloc(websites * sizeof(pthread_t));
+    
+    //Creating pipes:
     int pipe_info[2];
     int pipe_terminate[2];
     // indx 0 read  1 write
@@ -37,24 +44,36 @@ int main(int argc, char **argv)
     fcntl(pipe_terminate[0], F_SETFL, O_NONBLOCK); 
     fcntl(pipe_terminate[1], F_SETFL, O_NONBLOCK); 
 
+    //Starting threads
     for(int i =0;i<websites;i++)
     {
-        printf("cf_data_set[i].path: %s\n",cf_data_set[i].path);
         struct arg_host_struct *args = malloc(sizeof(struct arg_host_struct));
         args->port = cf_data_set[i].port;
         args->pipe_in = pipe_terminate[0];
         args->pipe_out = pipe_info[1];
         args->data = read_file(cf_data_set[i].path);
         args->dictionary = cf_data_set[i].dict;
+        args->password = password;
         server_status[i].name = cf_data_set[i].name;
         server_status[i].port = cf_data_set[i].port;
         server_status[i].number_of_connections = 0;
         server_status[i].number_of_errors = 0;
+        if(cf_data_set[i].security[0]=='S')
+        {
+            args->security = 1;
+            server_status[i].security = 1;
+        }
+        else
+        {
+            args->security = 0;
+            server_status[i].security = 0;
+        }
 
         pthread_t new_thread;
         threads[i] = new_thread;
         pthread_create(&threads[i],NULL,host_service,(void*)args);
     }
+
 
     int looping = 1;
     while(looping)
@@ -120,14 +139,19 @@ void * host_service(void * args)
     int port = host_args->port;
     int pipe_in = host_args->pipe_in;
     int pipe_out = host_args->pipe_out;
+    int security = host_args->security;
     char * data = host_args->data;
     char * dict = host_args->dictionary;
+    char * pass = host_args->password;
 
-    char * page = connect_two_txt("HTTP/1.0 200 OK \r\n\r\n",data);
+    char * page_with_data = connect_two_txt("HTTP/1.0 200 OK \r\n\r\n",data);
+    char * page = add_pass_to_website(page_with_data,pass);
+
     int listenfd, connfd, n;
     struct sockaddr_in servaddr;
     uint8_t buff[MAXLINE+1];
     uint8_t recvline[MAXLINE+1];
+
 
     if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -181,8 +205,7 @@ void * host_service(void * args)
             }
             memset(recvline,0,MAXLINE);
         }
-        printf("recvline: %s \n",recvline);
-        
+
         if(n<0)
         {
             // send flag about the error
@@ -192,9 +215,17 @@ void * host_service(void * args)
             err_n_die("read error");
         }
 
-
-        write(connfd, page, strlen((char *)page));
-        close(connfd);
+        if (security==0 || security_check(recvline,pass)==1)
+        {
+            write(connfd, page, strlen((char *)page));
+            close(connfd);
+        }
+        else
+        {
+            char * info = "This page is password protected you can not access";
+            write(connfd, info, strlen((char *)info));
+            close(connfd);  
+        }
 
         // send flag about the connection
         char mess[1];
@@ -207,8 +238,6 @@ void * host_service(void * args)
     close(listenfd);
     return NULL;
 }
-
-
 
 void send_dummy_data(char* addr, int port)
 {
@@ -243,3 +272,4 @@ void send_dummy_data(char* addr, int port)
     }
     close(sockfd);
 }
+

@@ -27,6 +27,7 @@
 struct website_status
 {
     char * name;
+    int security;
     int port;
     int number_of_connections;
     int number_of_errors;
@@ -37,8 +38,10 @@ struct config_data
     char * name;
     char * path;
     char * dict;
+    char * security;
     int port;
     int number_of_websites;
+    
 };
 
 void err_n_die(const char *fmt, ...);
